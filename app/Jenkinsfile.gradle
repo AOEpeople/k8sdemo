@@ -20,10 +20,8 @@ node {
             frontend: {
                 stage('Build Frontend Assets') {
                     docker.image('aoepeople/fe-build-env:1.1.0').inside() {
-                        ansiColor('xterm') {
-                            sh "cd ${frontendPath} && yarn install"
-                            sh "cd ${frontendPath} && yarn run build"
-                        }
+                        sh "cd ${frontendPath} && yarn install"
+                        sh "cd ${frontendPath} && yarn run build"
                     }
                 }
 
@@ -36,19 +34,15 @@ node {
             app: {
                 stage('Analyze App Core') {
                     docker.image('thebod/golang-qa').inside() {
-                        ansiColor('xterm') {
-                            sh "cd core && golint . | tee ../core_lint.txt"
-                            sh "cd core && go vet . | tee ../core_vet.txt"
-                            sh "cd core && gofmt -l -s ."
-                        }
+                        sh "cd core && golint . | tee ../core_lint.txt"
+                        sh "cd core && go vet . | tee ../core_vet.txt"
+                        sh "cd core && gofmt -l -s ."
                     }
                 }
 
                 stage('Test App Core') {
                     docker.image('thebod/golang-qa').inside {
-                        ansiColor('xterm') {
-                            sh "go test -v . | go2xunit -fail -output app_tests.xml"
-                        }
+                        sh "go test -v . | go2xunit -fail -output app_tests.xml"
                     }
                 }
             }
