@@ -33,3 +33,12 @@ variable "domain" {
 variable "region" {
   type = "string"
 }
+
+variable "iam_policy_arns" {
+  type = "list"
+}
+
+variable "s3_backup_path" {
+  type = "string"
+}
+

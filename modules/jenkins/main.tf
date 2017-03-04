@@ -42,15 +42,20 @@ resource "aws_autoscaling_group" "jenkins" {
   vpc_zone_identifier = ["${var.subnet_ids}"]
 }
 
+
+
 resource "aws_launch_configuration" "jenkins" {
   name_prefix = "jenkins-"
   image_id = "${var.ami}"
   instance_type = "${var.instance_type}"
   iam_instance_profile = "${aws_iam_instance_profile.jenkins.name}"
-  security_groups = [
-    "${aws_security_group.jenkins.id}"
-  ]
-  user_data = "${file("${path.module}/userdata.sh")}"
+  security_groups = ["${aws_security_group.jenkins.id}"]
+  user_data = <<EOF
+#!/usr/bin/env bash
+S3_BACKUP=${var.s3_backup_path}
+S3_REGION=${var.region}
+${file("${path.module}/userdata.sh")}
+EOF
   key_name = "${var.key_name}"
   lifecycle {
     create_before_destroy = true

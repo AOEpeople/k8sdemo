@@ -15,9 +15,6 @@ function export_persist {
 restore_backup() {
     echo '>>> Restoring Jenkins backup from S3'
 
-    S3_BACKUP="s3://dummy/backups/jenkins/"
-    S3_REGION="eu-central-1"
-
     if [ -z "${S3_BACKUP}" ] ; then error_exit "S3_BACKUP env var missing."; fi
 
     S3_BACKUP_ARCHIVE=$(aws s3 ls --region ${S3_REGION} ${S3_BACKUP} | tail -1 | awk '{print $NF}')
@@ -53,7 +50,7 @@ apt-get dist-upgrade -y || error_exit "Failed upgrading packages"
 
 
 echo ">>> Installing additional system packages (python, unzip, etc.)"
-apt-get -y install unzip python || error_exit "Failed installing additional system packages"
+apt-get -y install unzip python git jq pv || error_exit "Failed installing additional system packages"
 
 
 echo '>>>> Installing AWS Cli'
@@ -70,8 +67,7 @@ wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add
 sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list' || error_exit "Failed adding key"
 apt-get update
 apt-get -y install jenkins || error_exit "Failed installing Jenkins"
-apt-get -y install git jq pv || error_exit "Failed installing tools"
-# restore_backup
+restore_backup
 
 
 echo '>>> Installing Docker'
@@ -88,17 +84,16 @@ service jenkins restart || error_exit "Failed restarting Jenkins"
 
 
 
-echo '>>> Installing kubectl'
-wget \
-    -O /usr/local/bin/kubectl \
-    https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
-    || error_exit "Failed installing kubectl"
-chmod +x /usr/local/bin/kubectl || error_exit "Failed setting executable bit to kubectl binary"
+#echo '>>> Installing kubectl'
+#wget -O /usr/local/bin/kubectl \
+#    https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+#    || error_exit "Failed installing kubectl"
+#chmod +x /usr/local/bin/kubectl || error_exit "Failed setting executable bit to kubectl binary"
 
 
 
-echo '>>> Installing terraform'
-TERRAFORM_VERSION="0.9.0-beta1"
-wget -q -O /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
-    unzip /tmp/terraform.zip -d /usr/local/bin || error_exit "Failed installing terraform"
-chmod +x /usr/local/bin/terraform || error_exit "Failed setting executable bit to terraform binary"
+#echo '>>> Installing terraform'
+#TERRAFORM_VERSION="0.9.0-beta1"
+#wget -q -O /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
+#    unzip /tmp/terraform.zip -d /usr/local/bin || error_exit "Failed installing terraform"
+#chmod +x /usr/local/bin/terraform || error_exit "Failed setting executable bit to terraform binary"
