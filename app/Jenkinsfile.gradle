@@ -54,23 +54,19 @@ node {
             }
         )
     } finally {
+        /*
         step([
             $class: 'WarningsPublisher',
             parserConfigurations: [[parserName: 'Go Lint', pattern: '*lint.txt'], [parserName: 'Go Vet', pattern: '*vet.txt']]
         ])
+        */
 
         junit "app_tests.xml"
     }
 
 
     stage('Build Docker container') {
-        ansiColor('xterm') {
-            sh 'docker build -t thebod/app .'
-        }
-    }
-
-    stage('Push Docker container') {
-        sh 'docker push thebod/app'
+        docker.build('thebod/app').push('latest')
     }
 
     stage('Deploy to dev-latest') {
