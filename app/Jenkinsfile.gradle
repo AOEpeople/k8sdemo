@@ -8,7 +8,7 @@ properties([
 ])
 
 node {
-    def frontendPath = 'frontend/'
+    def frontendPath = 'app/frontend/'
 
     stage('Preparations') {
         echo "Current branch: $env.BRANCH_NAME"
@@ -34,28 +34,21 @@ node {
             app: {
                 stage('Analyze App Core') {
                     docker.image('thebod/golang-qa').inside() {
-                        sh "cd core && golint . | tee ../core_lint.txt"
-                        sh "cd core && go vet . | tee ../core_vet.txt"
-                        sh "cd core && gofmt -l -s ."
+                        sh "cd app && golint . | tee ../core_lint.txt"
+                        sh "cd app && go vet . | tee ../core_vet.txt"
+                        sh "cd app && gofmt -l -s ."
                     }
                 }
 
                 stage('Test App Core') {
                     docker.image('thebod/golang-qa').inside {
-                        sh "go test -v . | go2xunit -fail -output app_tests.xml"
+                        sh "cd app && go test -v . | go2xunit -fail -output app_tests.xml"
                     }
                 }
             }
         )
     } finally {
-        /*
-        step([
-            $class: 'WarningsPublisher',
-            parserConfigurations: [[parserName: 'Go Lint', pattern: '*lint.txt'], [parserName: 'Go Vet', pattern: '*vet.txt']]
-        ])
-        */
-
-        junit "app_tests.xml"
+        junit "app/app_tests.xml"
     }
 
 
