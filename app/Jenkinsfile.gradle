@@ -1,0 +1,86 @@
+#!/usr/bin/env groovy
+
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10')),
+    pipelineTriggers([
+        pollSCM('H/15 * * * *')
+    ])
+])
+
+node {
+    def frontendPath = 'frontend/'
+
+    stage('Preparations') {
+        echo "Current branch: $env.BRANCH_NAME"
+        checkout scm
+    }
+
+    try {
+        parallel(
+            frontend: {
+                stage('Build Frontend Assets') {
+                    docker.image('aoepeople/fe-build-env:1.1.0').inside() {
+                        ansiColor('xterm') {
+                            sh "cd ${frontendPath} && yarn install"
+                            sh "cd ${frontendPath} && yarn run build"
+                        }
+                    }
+                }
+
+                stage('Archive Artifacts') {
+                    sh "tar -czvf fe-assets.tar.gz -C ${frontendPath}/dist/ ."
+                    archiveArtifacts artifacts: 'fe-assets.tar.gz', onlyIfSuccessful: true
+                }
+            },
+
+            app: {
+                stage('Analyze App Core') {
+                    docker.image('thebod/golang-qa').inside() {
+                        ansiColor('xterm') {
+                            sh "cd core && golint . | tee ../core_lint.txt"
+                            sh "cd core && go vet . | tee ../core_vet.txt"
+                            sh "cd core && gofmt -l -s ."
+                        }
+                    }
+                }
+
+                stage('Test App Core') {
+                    docker.image('thebod/golang-qa').inside {
+                        ansiColor('xterm') {
+                            sh "go test -v . | go2xunit -fail -output app_tests.xml"
+                        }
+                    }
+                }
+            }
+        )
+    } finally {
+        step([
+            $class: 'WarningsPublisher',
+            parserConfigurations: [[parserName: 'Go Lint', pattern: '*lint.txt'], [parserName: 'Go Vet', pattern: '*vet.txt']]
+        ])
+
+        junit "app_tests.xml"
+    }
+
+
+    stage('Build Docker container') {
+        ansiColor('xterm') {
+            sh 'docker build -t thebod/app .'
+        }
+    }
+
+    stage('Push Docker container') {
+        sh 'docker push thebod/app'
+    }
+
+    stage('Deploy to dev-latest') {
+        build job: 'deploy_latest'
+    }
+
+    stage('Deploy to dev-review') {
+        timeout(time: 60, unit: 'MINUTES') {
+             input "Proceed deploying to dev-review?"
+        }
+        build job: 'deploy_deploy'
+    }
+}
