@@ -15,7 +15,7 @@ function export_persist {
 restore_backup() {
     echo '>>> Restoring Jenkins backup from S3'
 
-    S3_BACKUP="s3://akl.om3.cloud/backups/jenkins/"
+    S3_BACKUP="s3://dummy/backups/jenkins/"
     S3_REGION="eu-central-1"
 
     if [ -z "${S3_BACKUP}" ] ; then error_exit "S3_BACKUP env var missing."; fi
@@ -71,7 +71,7 @@ sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.l
 apt-get update
 apt-get -y install jenkins || error_exit "Failed installing Jenkins"
 apt-get -y install git jq pv || error_exit "Failed installing tools"
-restore_backup
+# restore_backup
 
 
 echo '>>> Installing Docker'

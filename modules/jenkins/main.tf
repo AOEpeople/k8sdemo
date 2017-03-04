@@ -31,6 +31,11 @@ resource "aws_autoscaling_group" "jenkins" {
     value = "Jenkins"
     propagate_at_launch = "true"
   }
+  tag {
+    key = "inspector"
+    value = "User:ubuntu"
+    propagate_at_launch = false
+  }
   lifecycle {
     create_before_destroy = true
   }
@@ -88,6 +93,12 @@ resource "aws_security_group" "elb" {
   ingress {
     from_port = 443
     to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 80
+    to_port = 80
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
