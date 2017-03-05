@@ -65,11 +65,4 @@ node {
        sh 'kubectl apply -f <( envsubst app/kubernetes.yml )'
     }
 
-    stage('Deploy to dev-review') {
-        timeout(time: 60, unit: 'MINUTES') {
-             input "Proceed deploying to dev-review?"
-        }
-        //build job: 'deploy_deploy'
-        echo 'deploying to deploy!'
-    }
 }
