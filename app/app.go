@@ -29,6 +29,7 @@ const tpl = `<!doctype html>
 </head>
 
 <body>
+bla bla bla <br/>
     Me: <strong>{{ .Me }}</strong><br/>
     You are number <strong>{{ .Count }}</strong>
 </body>
