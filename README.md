@@ -10,6 +10,7 @@ Immutable Deployments
 AWS
 VPC
 Autoscaling
+------
 Kops
 Create Service (+ELB+DB)
 Deploy via Jenkins

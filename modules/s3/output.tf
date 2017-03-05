@@ -9,3 +9,7 @@ output "policy_write_arn" {
 output "policy_read_arn" {
   value = "${aws_iam_policy.storage_read.arn}"
 }
+
+output "bucket_name" {
+  value = "${var.name}"
+}
