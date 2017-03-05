@@ -62,7 +62,7 @@ node {
     stage('Deploy to dev-latest') {
        //build job: 'deploy_latest'
        echo 'deploying to latest!'
-       sh 'bash -c "kubectl apply -f <( envsubst app/kubernetes.yml )"'
+       sh 'kubectl apply -f app/kubernetes.yml'
     }
 
 }
