@@ -62,6 +62,7 @@ node {
     stage('Deploy to dev-latest') {
        //build job: 'deploy_latest'
        echo 'deploying to latest!'
+       sh 'kubectl apply -f app/kubernetes.yml'
     }
 
     stage('Deploy to dev-review') {

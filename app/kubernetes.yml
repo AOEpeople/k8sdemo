@@ -1,0 +1,48 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: app
+  name: app
+  namespace: default
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: thebod/app
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3333
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3333
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: app
+  name: app
+  namespace: default
+spec:
+  type: NodePort
+  #type: LoadBalancer
+  #type: ClusterIP
+  ports:
+  - port: 4444
+    targetPort: 3333
+    nodePort: 30001
+  selector:
+    app: app
