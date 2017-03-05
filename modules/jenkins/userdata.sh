@@ -84,12 +84,17 @@ service jenkins restart || error_exit "Failed restarting Jenkins"
 
 
 
-#echo '>>> Installing kubectl'
-#wget -O /usr/local/bin/kubectl \
-#    https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
-#    || error_exit "Failed installing kubectl"
-#chmod +x /usr/local/bin/kubectl || error_exit "Failed setting executable bit to kubectl binary"
+echo '>>> Installing kubectl'
+wget -O /usr/local/bin/kubectl \
+    https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+    || error_exit "Failed installing kubectl"
+chmod +x /usr/local/bin/kubectl || error_exit "Failed setting executable bit to kubectl binary"
 
+
+
+echo '>>> Installing kops'
+wget https://github.com/kubernetes/kops/releases/download/1.5.1/kops-linux-amd64 -O /usr/local/bin/kops || error_exit "Failed installing kops"
+chmod +x /usr/local/bin/kops || error_exit "Failed setting executable bit to kubectl binary"
 
 
 #echo '>>> Installing terraform'
