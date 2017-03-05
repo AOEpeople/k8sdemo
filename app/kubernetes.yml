@@ -37,11 +37,12 @@ metadata:
   name: app
   namespace: default
 spec:
-  #type: NodePort
+  type: NodePort
   #type: LoadBalancer
-  type: ClusterIP
+  #type: ClusterIP
   ports:
   - port: 4444
     targetPort: 3333
+    nodePort: 30001
   selector:
     app: app
