@@ -82,6 +82,8 @@ func HealthController(rw http.ResponseWriter, req *http.Request) {
 func main() {
 	var backend CounterBackend = new(MemoryCounter)
 
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	me = rand.Int63()
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
